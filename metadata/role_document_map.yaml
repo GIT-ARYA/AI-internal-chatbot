@@ -1,0 +1,19 @@
+Employees:
+  - data_raw/general/employee_handbook.md
+
+Engineering:
+  - data_raw/engineering/engineering_master_doc.md
+
+Finance:
+  - data_raw/Finance/financial_summary.md
+  - data_raw/Finance/quarterly_financial_report.md
+
+HR:
+  - data_raw/HR/hr_data.csv
+
+Marketing:
+  - data_raw/marketing/market_report_q4_2024.md
+  - data_raw/marketing/marketing_report_2024.md
+  - data_raw/marketing/marketing_report_q1_2024.md
+  - data_raw/marketing/marketing_report_q2_2024.md
+  - data_raw/marketing/marketing_report_q3_2024.md

@@ -1,0 +1,52 @@
+[
+  {
+    "path": "data_raw\\engineering\\engineering_master_doc.md",
+    "type": "md",
+    "len": 28775
+  },
+  {
+    "path": "data_raw\\Finance\\financial_summary.md",
+    "type": "md",
+    "len": 7534
+  },
+  {
+    "path": "data_raw\\Finance\\quarterly_financial_report.md",
+    "type": "md",
+    "len": 11492
+  },
+  {
+    "path": "data_raw\\general\\employee_handbook.md",
+    "type": "md",
+    "len": 13943
+  },
+  {
+    "path": "data_raw\\HR\\hr_data.csv",
+    "type": "csv",
+    "len": 12909
+  },
+  {
+    "path": "data_raw\\marketing\\marketing_report_2024.md",
+    "type": "md",
+    "len": 7247
+  },
+  {
+    "path": "data_raw\\marketing\\marketing_report_q1_2024.md",
+    "type": "md",
+    "len": 6250
+  },
+  {
+    "path": "data_raw\\marketing\\marketing_report_q2_2024.md",
+    "type": "md",
+    "len": 6525
+  },
+  {
+    "path": "data_raw\\marketing\\marketing_report_q3_2024.md",
+    "type": "md",
+    "len": 6250
+  },
+  {
+    "path": "data_raw\\marketing\\market_report_q4_2024.md",
+    "type": "md",
+    "len": 6719
+  }
+]
