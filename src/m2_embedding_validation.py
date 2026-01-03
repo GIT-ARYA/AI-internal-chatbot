@@ -1,8 +1,8 @@
 # src/m2_embedding_validation.py
 
 """
-Milestone 2 – Phase A
-Step A1–A5: Embedding & Data Validation
+Milestone 2 – Module 3
+Embedding Generation & Validation
 """
 
 import pandas as pd
@@ -11,98 +11,78 @@ from sentence_transformers import SentenceTransformer
 
 CSV_PATH = "metadata/chunks_metadata.csv"
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-EXPECTED_DIM = 384   # MiniLM-L6-v2 embedding dimension
+EXPECTED_DIM = 384
 
 
-def load_chunks(csv_path):
-    print("[A2] Loading processed document chunks...")
-    df = pd.read_csv(csv_path)
+def load_chunks():
+    print("[A1] Loading processed document chunks...")
+    df = pd.read_csv(CSV_PATH)
 
     required_cols = {"chunk_id", "chunk_text", "role", "source_path"}
-    missing = required_cols - set(df.columns)
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
+    if not required_cols.issubset(df.columns):
+        raise ValueError("Missing required columns in chunks_metadata.csv")
 
-    # basic validation
-    if df["chunk_text"].isnull().any():
-        raise ValueError("Empty chunk_text found")
-
-    print(f"✔ Loaded {len(df)} chunks successfully")
+    print(f"✔ Loaded {len(df)} chunks")
     return df
 
 
-def load_embedding_model():
-    print("[A1] Loading embedding model...")
+def load_model():
+    print("[A2] Loading embedding model...")
     model = SentenceTransformer(MODEL_NAME)
-    print("✔ Model loaded:", MODEL_NAME)
+    print("✔ Model loaded")
     return model
 
 
 def generate_embeddings(df, model):
-    print("[A3] Generating embeddings (temporary, in-memory)...")
+    print("[A3] Generating embeddings...")
     texts = df["chunk_text"].astype(str).tolist()
     embeddings = model.encode(texts, convert_to_numpy=True)
-
-    print(f"✔ Generated embeddings for {len(embeddings)} chunks")
+    print("✔ Embeddings generated")
     return embeddings
 
 
-def verify_embeddings(embeddings):
-    print("[A4] Verifying embedding dimensions and integrity...")
+def validate_embeddings(embeddings):
+    print("[A4] Validating embeddings...")
 
-    # shape check
-    if len(embeddings.shape) != 2:
-        raise ValueError("Embeddings must be 2D array")
+    if embeddings.shape[1] != EXPECTED_DIM:
+        raise ValueError("Embedding dimension mismatch")
 
-    dim = embeddings.shape[1]
-    if dim != EXPECTED_DIM:
-        raise ValueError(f"Invalid embedding dimension: {dim} (expected {EXPECTED_DIM})")
-
-    # NaN / Inf check
     if np.isnan(embeddings).any():
-        raise ValueError("NaN values found in embeddings")
+        raise ValueError("NaN values found")
 
     if np.isinf(embeddings).any():
-        raise ValueError("Infinite values found in embeddings")
+        raise ValueError("Infinite values found")
 
-    print(f"✔ All embeddings have correct dimension ({EXPECTED_DIM})")
-    print("✔ No NaN or Inf values found")
+    print("✔ Embedding dimensions & integrity verified")
 
 
-def store_embeddings_temporarily(df, embeddings):
-    print("[A5] Storing embeddings temporarily (not persisted)...")
+def temporary_store(df, embeddings):
+    print("[A5] Storing embeddings temporarily (in memory)...")
 
     temp_store = {}
-
-    for idx, row in df.iterrows():
+    for i, row in df.iterrows():
         temp_store[row["chunk_id"]] = {
-            "embedding": embeddings[idx],
+            "embedding": embeddings[i],
             "role": row["role"],
-            "source_path": row["source_path"]
+            "source": row["source_path"]
         }
 
-    print(f"✔ Stored {len(temp_store)} embeddings in temporary memory")
+    print("✔ Temporary storage successful")
     return temp_store
 
 
 def main():
-    print("\n=== Milestone 2 | Phase A: Embedding Validation ===\n")
+    print("\n=== Milestone 2 | Embedding Validation ===\n")
 
-    df = load_chunks(CSV_PATH)
-    model = load_embedding_model()
+    df = load_chunks()
+    model = load_model()
     embeddings = generate_embeddings(df, model)
-    verify_embeddings(embeddings)
-    temp_embeddings = store_embeddings_temporarily(df, embeddings)
+    validate_embeddings(embeddings)
+    store = temporary_store(df, embeddings)
 
-    print("\n✅ PHASE A COMPLETED SUCCESSFULLY")
-    print("Embeddings validated and ready for secure retrieval testing.\n")
-
-    # optional: inspect one sample
-    sample_key = next(iter(temp_embeddings))
-    print("Sample embedding info:")
-    print("chunk_id:", sample_key)
-    print("role:", temp_embeddings[sample_key]["role"])
-    print("embedding_dim:", len(temp_embeddings[sample_key]["embedding"]))
+    sample = next(iter(store.values()))
+    print("\nSample embedding dimension:", len(sample["embedding"]))
+    print("\n✅ MODULE 3 VALIDATION COMPLETED\n")
 
 
 if __name__ == "__main__":
