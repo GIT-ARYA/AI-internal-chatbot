@@ -1,19 +1,41 @@
-# frontend/app.py
-
 import streamlit as st
 import requests
 
-API_URL = "http://127.0.0.1:8000"
-
-st.set_page_config(page_title="Secure Internal Chatbot", layout="centered")
+# =============================
+# Page Config
+# =============================
+st.set_page_config(
+    page_title="Secure Internal Company Chatbot",
+    page_icon="🔐",
+    layout="centered",
+)
 
 st.title("🔐 Secure Internal Company Chatbot")
 
-# Session state
+# =============================
+# Load Backend URL from Secrets
+# =============================
+try:
+    API_URL = st.secrets["BACKEND_URL"].rstrip("/")
+except KeyError:
+    st.error("BACKEND_URL is not set in Streamlit secrets.")
+    st.stop()
+
+# Debug (you can remove later)
+st.caption(f"Backend: {API_URL}")
+
+# =============================
+# Session State
+# =============================
 if "token" not in st.session_state:
     st.session_state.token = None
 
-# ---------------- LOGIN ----------------
+if "role" not in st.session_state:
+    st.session_state.role = None
+
+# =============================
+# LOGIN UI
+# =============================
 if st.session_state.token is None:
     st.subheader("Login")
 
@@ -21,41 +43,71 @@ if st.session_state.token is None:
     password = st.text_input("Password", type="password")
 
     if st.button("Login"):
-        response = requests.post(
-            f"{API_URL}/login",
-            json={"username": username, "password": password},
-        )
+        if not username or not password:
+            st.warning("Please enter username and password.")
+            st.stop()
+
+        try:
+            response = requests.post(
+                f"{API_URL}/login",
+                json={
+                    "username": username,
+                    "password": password,
+                },
+                timeout=10,
+            )
+        except Exception as e:
+            st.error(f"❌ Cannot connect to backend: {e}")
+            st.stop()
 
         if response.status_code == 200:
-            st.session_state.token = response.json()["access_token"]
-            st.success("Login successful!")
+            data = response.json()
+            st.session_state.token = data["access_token"]
+            st.session_state.role = data["role"]
+            st.success("✅ Login successful!")
             st.rerun()
         else:
-            st.error("Invalid credentials")
+            st.error("❌ Invalid credentials")
 
-# ---------------- CHAT ----------------
+# =============================
+# CHAT UI (After Login)
+# =============================
 else:
-    st.subheader("Chat")
+    st.success(f"Logged in as **{st.session_state.role}**")
 
-    query = st.text_input("Ask a question")
+    if st.button("Logout"):
+        st.session_state.token = None
+        st.session_state.role = None
+        st.rerun()
+
+    st.divider()
+    st.subheader("💬 Internal Chat")
+
+    user_query = st.text_input("Ask a question")
 
     if st.button("Send"):
+        if not user_query.strip():
+            st.warning("Please enter a question.")
+            st.stop()
+
         headers = {
             "Authorization": f"Bearer {st.session_state.token}"
         }
 
-        response = requests.post(
-            f"{API_URL}/chat",
-            json={"query": query},
-            headers=headers,
-        )
+        try:
+            response = requests.post(
+                f"{API_URL}/chat",
+                json={"query": user_query},
+                headers=headers,
+                timeout=20,
+            )
+        except Exception as e:
+            st.error(f"❌ Backend error: {e}")
+            st.stop()
 
         if response.status_code == 200:
-            st.markdown("### 💬 Answer")
-            st.write(response.json()["answer"])
+            result = response.json()
+            st.markdown("### 🤖 Response")
+            st.write(result["response"])
         else:
-            st.error("Access denied or error occurred")
-
-    if st.button("Logout"):
-        st.session_state.token = None
-        st.rerun()
+            st.error("❌ You are not authorized or an error occurred.")
