@@ -16,7 +16,7 @@ st.title("🔐 Secure Internal Company Chatbot")
 # Load Backend URL from Secrets
 # =============================
 try:
-    API_URL = st.secrets["BACKEND_URL"].rstrip("/")
+    API_URL = "http://127.0.0.1:8000"
 except KeyError:
     st.error("BACKEND_URL is not set in Streamlit secrets.")
     st.stop()
@@ -108,6 +108,6 @@ else:
         if response.status_code == 200:
             result = response.json()
             st.markdown("### 🤖 Response")
-            st.write(result["response"])
+            st.write(result["answer"])
         else:
             st.error("❌ You are not authorized or an error occurred.")
