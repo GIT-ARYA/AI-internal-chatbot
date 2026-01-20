@@ -10,18 +10,21 @@ app = FastAPI(title="Secure Internal Chatbot API")
 
 
 @app.post("/login", response_model=TokenResponse)
+@app.post("/login")
 def login(data: LoginRequest):
     user = authenticate_user(data.username, data.password)
 
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+    access_token = create_access_token({
+        "sub": user["username"],
+        "role": user["role"]
+    })
 
-    token = create_access_token(
-        {
-            "sub": user["username"],
-            "role": user["role"],
-        }
-    )
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "role": user["role"] 
+    }
+
 
     return {"access_token": token}
 
