@@ -5,9 +5,9 @@ Milestone 3 – RAG Pipeline
 Secure Retrieval + Prompt Builder + LLM
 """
 
-from m2_retriever import secure_retrieve
-from m3_prompt_builder import build_prompt
-from m3_llm_client import call_llm
+from src.m2_retriever import secure_retrieve
+from src.m3_prompt_builder import build_prompt
+from src.m3_llm_client import call_llm
 
 
 def ask(query, user_role, top_k=5):

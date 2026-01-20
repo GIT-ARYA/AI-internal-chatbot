@@ -8,7 +8,7 @@ from sentence_transformers import SentenceTransformer
 import chromadb
 from chromadb.config import Settings, DEFAULT_TENANT, DEFAULT_DATABASE
 
-from m2_role_guard import is_access_allowed, get_allowed_roles
+from src.m2_role_guard import is_access_allowed, get_allowed_roles
 
 MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 DB_PATH = "chroma_db"
